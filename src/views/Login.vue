@@ -16,6 +16,7 @@ const user = ref({
   lastName: "",
   email: "",
   password: "",
+  reenterPassword: "",
 });
 
 onMounted(async () => {
@@ -73,33 +74,25 @@ function closeCreateAccount() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+// Email validation rule
+const emailRules = [
+  v => !!v || "Email is required",
+  v => /.+@.+\..+/.test(v) || "Please enter a valid email address",
+];
+
 </script>
 
 <template>
   <v-container>
     <div id="body">
       <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">Login </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="user.email"
-            label="Email"
-            required
-          ></v-text-field>
-
-          <v-text-field
-            v-model="user.password"
-            label="Password"
-            required
-          ></v-text-field>
-        </v-card-text>
+        
         <v-card-actions>
           <v-btn variant="flat" color="secondary" @click="openCreateAccount()"
             >Create Account</v-btn
           >
-          <v-spacer></v-spacer>
 
-          <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
+
         </v-card-actions>
       </v-card>
 
@@ -111,7 +104,7 @@ function closeSnackBar() {
             color="secondary"
             @click="navigateToRecipes()"
           >
-            View Published Recipes
+            View Published Destinations
           </v-btn>
         </v-card-title>
       </v-card>
@@ -136,13 +129,32 @@ function closeSnackBar() {
               v-model="user.email"
               label="Email"
               required
+              type="email"
+              :rules="emailRules"
             ></v-text-field>
 
             <v-text-field
               v-model="user.password"
               label="Password"
               required
+              type="password"
             ></v-text-field>
+
+            <v-text-field
+              v-model="user.reenterPassword"
+              label="Re-enter Password"
+              required
+              type="password"
+            ></v-text-field>
+
+            <!-- Add a validation message if passwords don't match -->
+            <v-alert
+              v-if="user.password !== user.reenterPassword"
+              color="error"
+              dense
+            >
+              Passwords do not match.
+            </v-alert>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
