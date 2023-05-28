@@ -86,12 +86,28 @@ const emailRules = [
   <v-container>
     <div id="body">
       <v-card class="rounded-lg elevation-5">
-        
+        <v-card-title class="headline mb-2">Login </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="user.email"
+            label="Email"
+            required
+            type="email"
+            :rules="emailRules"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="user.password"
+            label="Password"
+            required
+            type="password"
+          ></v-text-field>
+        </v-card-text>
         <v-card-actions>
           <v-btn variant="flat" color="secondary" @click="openCreateAccount()"
             >Create Account</v-btn
           >
-
+          <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
 
         </v-card-actions>
       </v-card>
