@@ -15,8 +15,11 @@ const snackbar = ref({
 const newRecipe = ref({
   name: "",
   description: "",
-  servings: 0,
-  time: "30",
+  location:"",
+  startdate:"",
+  enddate: "", 
+  hotels: "",
+  touristspots: "",
   isPublished: false,
 });
 
@@ -24,7 +27,21 @@ onMounted(async () => {
   await getRecipes();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
-
+async function deleteRecipe(recipeId) {
+  await RecipeServices.deleteRecipe(recipeId)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Destination deleted successfully!";
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getRecipes();
+}
 async function getRecipes() {
   user.value = JSON.parse(localStorage.getItem("user"));
   if (user.value !== null && user.value.id !== null) {
@@ -89,7 +106,7 @@ function closeSnackBar() {
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Recipes
+            >Destinations
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
@@ -104,11 +121,12 @@ function closeSnackBar() {
         :key="recipe.id"
         :recipe="recipe"
         @deletedList="getLists()"
+        @deleteRecipe="deleteRecipe(recipe.id)"
       />
 
       <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add Recipe </v-card-title>
+          <v-card-title class="headline mb-2">Add Destination </v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newRecipe.name"
@@ -117,15 +135,36 @@ function closeSnackBar() {
             ></v-text-field>
 
             <v-text-field
-              v-model.number="newRecipe.servings"
-              label="Number of Servings"
-              type="number"
+            v-model="newRecipe.location"
+              label="name of location"
+              requierd
             ></v-text-field>
             <v-text-field
-              v-model.number="newRecipe.time"
-              label="Time to Make (in minutes)"
-              type="number"
+              v-model="newRecipe.hotels"
+              label="name of hotels"
+              requierd
             ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.touristspots"
+              label="name of tourist spots"
+              requierd
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.startdate"
+              label=" startdate"
+              type="date"
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.enddate"
+              label="enddate"
+              type="date"
+
+            ></v-text-field>
+            <!-- <v-text-field
+              v-model.number="newRecipe.time"
+              label="number of days"
+              type="date"
+            ></v-text-field> -->
 
             <v-textarea
               v-model="newRecipe.description"
@@ -143,8 +182,11 @@ function closeSnackBar() {
             <v-btn variant="flat" color="secondary" @click="closeAdd()"
               >Close</v-btn
             >
+            <v-btn icon color="error" @click="$emit('deleteRecipe')">
+        <v-icon>mdi-delete</v-icon>
+      </v-btn>
             <v-btn variant="flat" color="primary" @click="addRecipe()"
-              >Add Recipe</v-btn
+              >Add Destination</v-btn
             >
           </v-card-actions>
         </v-card>
