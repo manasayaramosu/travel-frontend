@@ -15,7 +15,18 @@ onMounted(() => {
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-
+function logout() {
+  UserServices.logoutUser()
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  localStorage.removeItem("user");
+  user.value = null;
+  router.push({ name: "login" });
+}
 </script>
 
 <template>
@@ -35,6 +46,14 @@ onMounted(() => {
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="mx-2" :to="{ name: 'recipes' }"> destinations </v-btn>
+      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'login' }">Location</v-btn>
+      <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
+        AdminLogin
+      </v-btn>
+      <v-btn v-if="user === null" class="mx-2" >
+      UserLogin
+      </v-btn>
+
       
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
@@ -54,9 +73,12 @@ onMounted(() => {
                   `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
                 }}</span>
               </v-avatar>
-              
+              <h3>{{ `${user.firstName} ${user.lastName}` }}</h3>
+              <p class="text-caption mt-1">
+                {{ user.email }}
+              </p>
               <v-divider class="my-3"></v-divider>
-             
+              <v-btn rounded variant="text" @click="logout()"> Logout </v-btn>
             </div>
           </v-card-text>
         </v-card>
