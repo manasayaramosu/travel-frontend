@@ -165,7 +165,31 @@ async function deleteIngredient(ingredient) {
   await getRecipeIngredients();
 }
 
+async function checkUpdateIngredient() {
+  if (newStep.value.recipeIngredient.length > 0) {
+    console.log(newStep.value.recipeIngredient);
+    for (let i = 0; i < newStep.value.recipeIngredient.length; i++) {
+      newIngredient.value.id = newStep.value.recipeIngredient[i].id;
+      newIngredient.value.quantity = newStep.value.recipeIngredient[i].quantity;
+      newIngredient.value.recipeStepId = newStep.value.id;
+      selectedIngredient.value.id =
+        newStep.value.recipeIngredient[i].ingredientId;
+      await updateIngredient();
+    }
+  }
+}
 
+async function getRecipeSteps() {
+  await RecipeStepServices.getRecipeStepsForRecipeWithIngredients(
+    route.params.id
+  )
+    .then((response) => {
+      recipeSteps.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 async function addStep() {
   isAddStep.value = false;
@@ -205,7 +229,7 @@ async function updateStep() {
       snackbar.value.text = error.response.data.message;
     });
 
-
+  await checkUpdateIngredient();
 
   await getRecipeSteps();
 }
@@ -327,7 +351,12 @@ function closeSnackBar() {
                   label="enddate"
                   type="date"
                 ></v-text-field>
-               
+                <v-switch
+                  v-model="recipe.isPublished"
+                  hide-details
+                  inset
+                  :label="`Publish? ${recipe.isPublished ? 'Yes' : 'No'}`"
+                ></v-switch>
               </v-col>
               <v-col>
                 <v-textarea
@@ -338,7 +367,15 @@ function closeSnackBar() {
               </v-col>
             </v-row>
           </v-card-text>
-          
+          <v-card-actions class="pt-0">
+            <v-btn variant="flat" color="primary" @click="updateRecipe()"
+              >Update Destination</v-btn
+            >
+            <v-btn icon color="error" @click="$emit('deleteRecipe')">
+        <v-icon>mdi-delete</v-icon>
+      </v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
