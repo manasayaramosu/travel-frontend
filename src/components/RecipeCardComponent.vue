@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
-import RecipeStepServices from "../services/RecipeStepServices";
+import RecipeStepServices from "../services/RecipeStepServices.js";
 
 const router = useRouter();
 
@@ -60,12 +60,12 @@ function navigateToEdit() {
         <v-col cols="10">
           {{ recipe.name }}
           <v-chip class="ma-2" color="primary" label>
-            <v-icon start icon="mdi-account-circle-outline"></v-icon>
-            {{ recipe.servings }} Servings
-          </v-chip>
-          <v-chip class="ma-2" color="accent" label>
-            <v-icon start icon="mdi-clock-outline"></v-icon>
-            {{ recipe.time }} minutes
+            <!-- <v-icon start icon="mdi-earth-circle-outline"></v-icon> -->
+            <strong>Location:</strong>
+				   
+													
+															
+            {{ recipe.location }}
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
@@ -83,50 +83,31 @@ function navigateToEdit() {
     </v-card-text>
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
-        <h3>Ingredients</h3>
-        <v-list>
-          <v-list-item
-            v-for="recipeIngredient in recipeIngredients"
-            :key="recipeIngredient.id"
-          >
-            <b
-              >{{ recipeIngredient.quantity }}
-              {{
-                `${recipeIngredient.ingredient.unit}${
-                  recipeIngredient.quantity > 1 ? "s" : ""
-                }`
-              }}</b
-            >
-            of {{ recipeIngredient.ingredient.name }} (${{
-              recipeIngredient.ingredient.pricePerUnit
-            }}/{{ recipeIngredient.ingredient.unit }})
-          </v-list-item>
-        </v-list>
-        <h3>Recipe Steps</h3>
-        <v-table>
-          <thead>
-            <tr>
-              <th class="text-left">Step</th>
-              <th class="text-left">Instruction</th>
-              <th class="text-left">Ingredients</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="step in recipeSteps" :key="step.id">
-              <td>{{ step.stepNumber }}</td>
-              <td>{{ step.instruction }}</td>
-              <td>
-                <v-chip
-                  size="small"
-                  v-for="ingredient in step.recipeIngredient"
-                  :key="ingredient.id"
-                  pill
-                  >{{ ingredient.ingredient.name }}</v-chip
-                >
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+        <h3>description</h3>
+        <v-chip class="ma-2"  label>
+            <!-- <v-icon start icon="mdi-account-circle-outline"></v-icon> -->
+            <strong>startdate</strong>
+            {{ recipe.startdate }} 
+          </v-chip>
+          <v-chip class="ma-2"  label>
+            <!-- <v-icon start icon="mdi-account-circle-outline"></v-icon> -->
+            <strong>enddate</strong>
+            {{ recipe.enddate }} 
+													  
+													  
+          </v-chip>     
+          <v-chip class="ma-2" color="primary" label>
+            <!-- <v-icon start icon="mdi-earth-circle-outline"></v-icon> -->
+            <strong>hotels:</strong>
+            {{ recipe.hotels }}
+          </v-chip>
+          <v-chip class="ma-2" color="primary" label>
+            <!-- <v-icon start icon="mdi-earth-circle-outline"></v-icon> -->
+            <strong>touristspots:</strong>
+            {{ recipe.touristspots }}
+				  
+				  
+          </v-chip>
       </v-card-text>
     </v-expand-transition>
   </v-card>
