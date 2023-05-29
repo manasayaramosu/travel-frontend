@@ -20,7 +20,7 @@ const newRecipe = ref({
   enddate: "", 
   hotels: "",
   touristspots: "",
-
+  isPublished: false,
 });
 
 onMounted(async () => {
@@ -170,7 +170,12 @@ function closeSnackBar() {
               v-model="newRecipe.description"
               label="Description"
             ></v-textarea>
-            
+            <v-switch
+              v-model="newRecipe.isPublished"
+              hide-details
+              inset
+              :label="`Publish? ${newRecipe.isPublished ? 'Yes' : 'No'}`"
+            ></v-switch>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
