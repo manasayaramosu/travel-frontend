@@ -112,6 +112,21 @@ async function addIngredient() {
     });
   await getRecipeIngredients();
 }
+async function deleteRecipe(recipeId) {
+  await RecipeServices.deleteRecipe(recipeId)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Destination deleted successfully!";
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getRecipes();
+}
 
 async function updateIngredient() {
   isEditIngredient.value = false;
@@ -150,31 +165,7 @@ async function deleteIngredient(ingredient) {
   await getRecipeIngredients();
 }
 
-async function checkUpdateIngredient() {
-  if (newStep.value.recipeIngredient.length > 0) {
-    console.log(newStep.value.recipeIngredient);
-    for (let i = 0; i < newStep.value.recipeIngredient.length; i++) {
-      newIngredient.value.id = newStep.value.recipeIngredient[i].id;
-      newIngredient.value.quantity = newStep.value.recipeIngredient[i].quantity;
-      newIngredient.value.recipeStepId = newStep.value.id;
-      selectedIngredient.value.id =
-        newStep.value.recipeIngredient[i].ingredientId;
-      await updateIngredient();
-    }
-  }
-}
 
-async function getRecipeSteps() {
-  await RecipeStepServices.getRecipeStepsForRecipeWithIngredients(
-    route.params.id
-  )
-    .then((response) => {
-      recipeSteps.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
 
 async function addStep() {
   isAddStep.value = false;
@@ -214,7 +205,7 @@ async function updateStep() {
       snackbar.value.text = error.response.data.message;
     });
 
-  await checkUpdateIngredient();
+
 
   await getRecipeSteps();
 }
@@ -296,7 +287,7 @@ function closeSnackBar() {
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"
-          >Edit Recipe
+          >Edit Destination
         </v-card-title>
       </v-col>
     </v-row>
@@ -312,14 +303,29 @@ function closeSnackBar() {
                   required
                 ></v-text-field>
                 <v-text-field
-                  v-model.number="recipe.servings"
-                  label="Number of Servings"
-                  type="number"
+                  v-model="recipe.location"
+                  label="location"
+                  required
                 ></v-text-field>
                 <v-text-field
-                  v-model.number="recipe.time"
-                  label="Time to Make (in minutes)"
-                  type="number"
+                  v-model="recipe.hotels"
+                  label="hotels"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  v-model="recipe.touristspots"
+                  label="touristspots"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  v-model="recipe.startdate"
+                  label="startdate"
+                  type="date"
+                ></v-text-field>
+                <v-text-field
+                  v-model="recipe.enddate"
+                  label="enddate"
+                  type="date"
                 ></v-text-field>
                 <v-switch
                   v-model="recipe.isPublished"
@@ -337,115 +343,19 @@ function closeSnackBar() {
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card-actions class="pt-0">
-            <v-btn variant="flat" color="primary" @click="updateRecipe()"
-              >Update Recipe</v-btn
-            >
-            <v-spacer></v-spacer>
-          </v-card-actions>
+          
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-card class="rounded-lg elevation-5">
-          <v-card-title
-            ><v-row align="center">
-              <v-col cols="10"
-                ><v-card-title class="headline">Ingredients </v-card-title>
-              </v-col>
-              <v-col class="d-flex justify-end" cols="2">
-                <v-btn color="accent" @click="openAddIngredient()">Add</v-btn>
-              </v-col>
-            </v-row>
-          </v-card-title>
-          <v-card-text>
-            <v-list>
-              <v-list-item
-                v-for="recipeIngredient in recipeIngredients"
-                :key="recipeIngredient.id"
-              >
-                <b
-                  >{{ recipeIngredient.quantity }}
-                  {{
-                    `${recipeIngredient.ingredient.unit}${
-                      recipeIngredient.quantity > 1 ? "s" : ""
-                    }`
-                  }}</b
-                >
-                of {{ recipeIngredient.ingredient.name }} (${{
-                  recipeIngredient.ingredient.pricePerUnit
-                }}/{{ recipeIngredient.ingredient.unit }})
-                <template v-slot:append>
-                  <v-row>
-                    <v-icon
-                      class="mx-2"
-                      size="x-small"
-                      icon="mdi-pencil"
-                      @click="openEditIngredient(recipeIngredient)"
-                    ></v-icon>
-                    <v-icon
-                      class="mx-2"
-                      size="x-small"
-                      icon="mdi-trash-can"
-                      @click="deleteIngredient(recipeIngredient)"
-                    ></v-icon>
-                  </v-row>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
+        
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-card class="rounded-lg elevation-5">
-          <v-card-title
-            ><v-row align="center">
-              <v-col cols="10"
-                ><v-card-title class="headline">Steps </v-card-title>
-              </v-col>
-              <v-col class="d-flex justify-end" cols="2">
-                <v-btn color="accent" @click="openAddStep()">Add</v-btn>
-              </v-col>
-            </v-row>
-          </v-card-title>
-          <v-card-text>
-            <v-table>
-              <tbody>
-                <tr v-for="step in recipeSteps" :key="step.id">
-                  <td>{{ step.stepNumber }}</td>
-                  <td>{{ step.instruction }}</td>
-                  <td>
-                    <v-chip
-                      size="small"
-                      v-for="ingredient in step.recipeIngredient"
-                      :key="ingredient.id"
-                      pill
-                      >{{ ingredient.ingredient.name }}</v-chip
-                    >
-                  </td>
-                  <td>
-                    <v-icon
-                      size="x-small"
-                      icon="mdi-pencil"
-                      @click="openEditStep(step)"
-                    ></v-icon>
-                  </td>
-                  <td>
-                    <v-icon
-                      size="x-small"
-                      icon="mdi-trash-can"
-                      @click="deleteStep(step)"
-                    >
-                    </v-icon>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-card-text> </v-card
-      ></v-col>
+       
+      </v-col>
     </v-row>
 
     <v-dialog
