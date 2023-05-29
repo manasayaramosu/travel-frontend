@@ -48,11 +48,9 @@ function logout() {
       <v-btn class="mx-2" :to="{ name: 'recipes' }"> destinations </v-btn>
       <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'login' }">Location</v-btn>
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
-        AdminLogin
+        Login
       </v-btn>
-      <v-btn v-if="user === null" class="mx-2" >
-      UserLogin
-      </v-btn>
+      
 
       
       <v-menu v-if="user !== null" min-width="200px" rounded>
