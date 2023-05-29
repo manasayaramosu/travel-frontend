@@ -327,12 +327,7 @@ function closeSnackBar() {
                   label="enddate"
                   type="date"
                 ></v-text-field>
-                <v-switch
-                  v-model="recipe.isPublished"
-                  hide-details
-                  inset
-                  :label="`Publish? ${recipe.isPublished ? 'Yes' : 'No'}`"
-                ></v-switch>
+               
               </v-col>
               <v-col>
                 <v-textarea
