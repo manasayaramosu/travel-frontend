@@ -20,7 +20,6 @@ const newRecipe = ref({
   enddate: "", 
   hotels: "",
   touristspots: "",
-  isPublished: false,
 
 });
 
