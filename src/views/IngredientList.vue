@@ -3,21 +3,23 @@ import { onMounted } from "vue";
 import { ref } from "vue";
 import IngredientServices from "../services/IngredientServices.js";
 
-const units = [
-  "cup",
-  "gallon",
-  "gram",
-  "kilogram",
-  "liter",
-  "milliliter",
-  "ounce",
-  "pint",
-  "piece",
-  "pound",
-  "quart",
-  "tablespoon",
-  "teaspoon",
-  "unit",
+const Destinations = [
+  "Oklahoma",
+"Dallas",
+"Austin",
+"Newyork",
+"Chicago",
+"Las Vegas",
+"San Francisco",
+"Colorado",
+"Boston",
+"Miami",
+"Houston",
+"San Antonio",
+"Nashville",
+"Charleston",
+"South Carolina",
+"Denver",
 ];
 
 const ingredients = ref([]);
@@ -31,9 +33,9 @@ const snackbar = ref({
 });
 const newIngredient = ref({
   id: undefined,
-  name: undefined,
-  unit: undefined,
-  pricePerUnit: undefined,
+  Destinations: undefined,
+  Touristspots: undefined,
+  Hotels: undefined,
 });
 
 onMounted(async () => {
@@ -42,57 +44,55 @@ onMounted(async () => {
 });
 
 async function getIngredients() {
-  await IngredientServices.getIngredients()
-    .then((response) => {
-      ingredients.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
+  try {
+    const response = await IngredientServices.getIngredients();
+    ingredients.value = response.data;
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = error.response.data.message;
+  }
 }
 
 async function addIngredient() {
   isAdd.value = false;
-  delete newIngredient.id;
-  await IngredientServices.addIngredient(newIngredient.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.value.name} added successfully!`;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-  await getIngredients();
+  delete newIngredient.value.id;
+  try {
+    await IngredientServices.addIngredient(newIngredient.value);
+    snackbar.value.value = true;
+    snackbar.value.color = "green";
+    snackbar.value.text = `${newIngredient.value.Destinations} added successfully!`;
+    await getIngredients();
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = error.response.data.message;
+  }
 }
 
 async function updateIngredient() {
   isEdit.value = false;
-  await IngredientServices.updateIngredient(newIngredient.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.name} updated successfully!`;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-  await getIngredients();
+  try {
+    await IngredientServices.updateIngredient(newIngredient.value);
+    snackbar.value.value = true;
+    snackbar.value.color = "green";
+    snackbar.value.text = `${newIngredient.value.Destinations} updated successfully!`;
+    await getIngredients();
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = error.response.data.message;
+  }
 }
 
 function openAdd() {
-  newIngredient.value.name = undefined;
-  newIngredient.value.unit = undefined;
-  newIngredient.value.pricePerUnit = undefined;
+  newIngredient.value.id = undefined;
+  newIngredient.value.Destinations = undefined;
+  newIngredient.value.Touristspots = undefined;
+  newIngredient.value.Hotels = undefined;
   isAdd.value = true;
 }
 
@@ -102,9 +102,9 @@ function closeAdd() {
 
 function openEdit(item) {
   newIngredient.value.id = item.id;
-  newIngredient.value.name = item.name;
-  newIngredient.value.unit = item.unit;
-  newIngredient.value.pricePerUnit = item.pricePerUnit;
+  newIngredient.value.Destinations = item.Destinations;
+  newIngredient.value.Touristspots = item.Touristspots;
+  newIngredient.value.Hotels = item.Hotels;
   isEdit.value = true;
 }
 
@@ -123,30 +123,30 @@ function closeSnackBar() {
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Ingredients
+            >Destinations
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
           <v-btn v-if="user !== null" color="accent" @click="openAdd()"
             >Add</v-btn
-          >
+            >
         </v-col>
       </v-row>
 
       <v-table class="rounded-lg elevation-5">
         <thead>
           <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Unit</th>
-            <th class="text-left">Price Per Unit</th>
+            <th class="text-left">Destinations</th>
+            <th class="text-left">Touristspots</th>
+            <th class="text-left">Hotels</th>
             <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in ingredients" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.unit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
+          <tr v-for="item in ingredients" :key="item.Destinations">
+            <td>{{ item.Destinations }}</td>
+            <td>{{ item.Touristspots }}</td>
+            <td>{{ item.Hotels }}</td>
             <td>
               <v-icon
                 size="small"
@@ -162,26 +162,27 @@ function closeSnackBar() {
         <v-card class="rounded-lg elevation-5">
           <v-card-item>
             <v-card-title class="headline mb-2"
-              >{{ isAdd ? "Add Ingredient" : isEdit ? "Edit Ingredient" : "" }}
+              >{{ isAdd ? "Add Destination" : isEdit ? "Edit Destination" : "" }}
             </v-card-title>
           </v-card-item>
           <v-card-text>
-            <v-text-field
-              v-model="newIngredient.name"
-              label="Name"
-              required
-            ></v-text-field>
+            
             <v-select
-              v-model="newIngredient.unit"
-              :items="units"
-              label="Unit"
+              v-model="newIngredient.Destinations"
+              :items="Destinations"
+              label="Destinations"
               required
             >
             </v-select>
             <v-text-field
-              v-model="newIngredient.pricePerUnit"
-              label="Price Per Unit"
-              type="number"
+              v-model="newIngredient.Touristspots"
+              label="Touristspots"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newIngredient.Hotels"
+              label="Hotels"
+              
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -199,7 +200,7 @@ function closeSnackBar() {
                 isAdd ? addIngredient() : isEdit ? updateIngredient() : false
               "
               >{{
-                isAdd ? "Add Ingredient" : isEdit ? "Update Ingredient" : ""
+                isAdd ? "Add Destinations" : isEdit ? "Update Destinations" : ""
               }}</v-btn
             >
           </v-card-actions>
