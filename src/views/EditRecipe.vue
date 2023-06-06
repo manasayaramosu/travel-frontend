@@ -31,7 +31,7 @@ const newStep = ref({
 });
 const newIngredient = ref({
   id: undefined,
-  quantity: undefined,
+  // quantity: undefined,
   recipeId: undefined,
   recipeStepId: undefined,
   ingredientId: undefined,
@@ -57,6 +57,9 @@ async function getRecipe() {
 async function updateRecipe() {
   await RecipeServices.updateRecipe(recipe.value.id, recipe.value)
     .then(() => {
+      recipe.value.startdate = recipe.value.startdate; // Manually update start date
+      recipe.value.enddate = recipe.value.enddate; // Manually update end date
+
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `${recipe.value.name} updated successfully!`;
@@ -69,6 +72,7 @@ async function updateRecipe() {
     });
   await getRecipe();
 }
+
 
 async function getIngredients() {
   await IngredientServices.getIngredients()
@@ -170,7 +174,7 @@ async function checkUpdateIngredient() {
     console.log(newStep.value.recipeIngredient);
     for (let i = 0; i < newStep.value.recipeIngredient.length; i++) {
       newIngredient.value.id = newStep.value.recipeIngredient[i].id;
-      newIngredient.value.quantity = newStep.value.recipeIngredient[i].quantity;
+      // newIngredient.value.quantity = newStep.value.recipeIngredient[i].quantity;
       newIngredient.value.recipeStepId = newStep.value.id;
       selectedIngredient.value.id =
         newStep.value.recipeIngredient[i].ingredientId;
@@ -253,7 +257,7 @@ async function deleteStep(step) {
 
 function openAddIngredient() {
   newIngredient.value.id = undefined;
-  newIngredient.value.quantity = undefined;
+  // newIngredient.value.quantity = undefined;
   newIngredient.value.recipeStepId = undefined;
   newIngredient.value.ingredientId = undefined;
   selectedIngredient.value = undefined;
@@ -265,7 +269,7 @@ function openEditIngredient(ingredient) {
   newIngredient.value.quantity = ingredient.quantity;
   newIngredient.value.recipeStepId = ingredient.recipeStepId;
   newIngredient.value.ingredientId = ingredient.ingredientId;
-  selectedIngredient.value = ingredient.ingredient;
+  selectedIngredient.value = Destinations.Destinations;
   isEditIngredient.value = true;
 }
 
@@ -326,7 +330,7 @@ function closeSnackBar() {
                   label="Name"
                   required
                 ></v-text-field>
-                <v-text-field
+                <!-- <v-text-field
                   v-model="recipe.location"
                   label="location"
                   required
@@ -340,7 +344,7 @@ function closeSnackBar() {
                   v-model="recipe.touristspots"
                   label="touristspots"
                   required
-                ></v-text-field>
+                ></v-text-field> -->
                 <v-text-field
                   v-model="recipe.startdate"
                   label="startdate"
@@ -374,22 +378,63 @@ function closeSnackBar() {
             <v-btn icon color="error" @click="$emit('deleteRecipe')">
         <v-icon>mdi-delete</v-icon>
       </v-btn>
-            <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-       
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title
+            ><v-row align="center">
+              <v-col cols="10"
+                ><v-card-title class="headline">Destinations </v-card-title>
+              </v-col>
+              <v-col class="d-flex justify-end" cols="2">
+                <v-btn color="accent" @click="openAddIngredient()">Add</v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-list>
+              <v-list-item
+                v-for="recipeIngredient in recipeIngredients"
+                :key="recipeIngredient.id"
+              >
+                <b
+                  >{{ recipeIngredient.Destinations }}
+                  {{
+                    `${recipeIngredient.ingredient.Touristspots}`
+                  }}</b
+                >
+                Stay at {{ recipeIngredient.ingredient.Hotels }} {{
+                  recipeIngredient.ingredient.Destinations
+                }} 
+                <template v-slot:append>
+                  <v-row>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-pencil"
+                      @click="openEditIngredient(recipeIngredient)"
+                    ></v-icon>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-trash-can"
+                      @click="deleteIngredient(recipeIngredient)"
+                    ></v-icon>
+                  </v-row>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 
+          
     <v-dialog
       persistent
       :model-value="isAddIngredient || isEditIngredient"
@@ -398,9 +443,9 @@ function closeSnackBar() {
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">{{
           isAddIngredient
-            ? "Add Ingredient"
+            ? "Add Destinations"
             : isEditIngredient
-            ? "Edit Ingredient"
+            ? "Edit Destinations"
             : ""
         }}</v-card-title>
         <v-card-text>
@@ -408,30 +453,31 @@ function closeSnackBar() {
             <v-col cols="3">
               <v-text-field
                 v-model="newIngredient.quantity"
-                label="Quantity"
+                label="Days"
                 type="number"
-                required
+                
               >
               </v-text-field>
             </v-col>
 
             <v-col>
               <v-select
-                v-model="selectedIngredient"
-                :items="ingredients"
-                item-title="name"
-                item-value="unit"
-                label="Ingredients"
-                return-object
-                required
+              v-model="selectedIngredient"
+
+              :items="ingredients"
+              :item-title="item => `${item.Touristspots} - ${item.Destinations}`"
+              item-value="touristspots"
+              label="Destinations"
+              return-object
+              required
               >
                 <template v-slot:prepend>
                   {{
                     `${
-                      selectedIngredient && selectedIngredient.unit
-                        ? selectedIngredient.unit
+                      selectedIngredient && selectedIngredient.Destinations
+                        ? selectedIngredient.Destinations
                         : ""
-                    }${newIngredient.quantity > 1 ? "s" : ""}`
+                    }`
                   }}
                   of
                 </template>
@@ -465,76 +511,14 @@ function closeSnackBar() {
             "
             >{{
               isAddIngredient
-                ? "Add Ingredient"
+                ? "Add Destinations"
                 : isEditIngredient
-                ? "Update Ingredient"
+                ? "Update Destionations"
                 : ""
             }}</v-btn
           >
         </v-card-actions>
       </v-card>
-    </v-dialog>
-
-    <v-dialog persistent :model-value="isAddStep || isEditStep" width="800">
-      <v-card class="rounded-lg elevation-5">
-        <v-card-title class="headline mb-2">
-          {{ isAddStep ? "Add Step" : isEditStep ? "Edit Step" : "" }}
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="newStep.stepNumber"
-            label="Number"
-            type="number"
-            required
-          ></v-text-field>
-
-          <v-textarea
-            v-model="newStep.instruction"
-            label="Instruction"
-            required
-          ></v-textarea>
-
-          <v-select
-            v-model="newStep.recipeIngredient"
-            :items="recipeIngredients"
-            item-title="ingredient.name"
-            item-value="id"
-            label="Ingredients"
-            return-object
-            multiple
-            chips
-            required
-          ></v-select>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="flat"
-            color="secondary"
-            @click="
-              isAddStep ? closeAddStep() : isEditStep ? closeEditStep() : false
-            "
-            >Close</v-btn
-          >
-          <v-btn
-            variant="flat"
-            color="primary"
-            @click="isAddStep ? addStep() : isEditStep ? updateStep() : false"
-            >{{
-              isAddStep ? "Add Step" : isEditStep ? "Update Step" : ""
-            }}</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-
-      <template v-slot:actions>
-        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+    </v-dialog> 
   </v-container>
 </template>

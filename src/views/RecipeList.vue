@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref } from "vue";
-import RecipeCard from "../components/RecipeCardComponent.vue";
+import RecipeCard from "../components/destiCardComponent.vue";
 import RecipeServices from "../services/RecipeServices.js";
 
 const recipes = ref([]);
@@ -20,6 +20,7 @@ const newRecipe = ref({
   enddate: "", 
   hotels: "",
   touristspots: "",
+  
   isPublished: false,
 });
 
@@ -32,7 +33,7 @@ async function deleteRecipe(recipeId) {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = "Destination deleted successfully!";
+      snackbar.value.text = " deleted successfully!";
     })
     .catch((error) => {
       console.log(error);
@@ -117,12 +118,12 @@ function closeSnackBar() {
       </v-row>
 
       <RecipeCard
-        v-for="recipe in recipes"
-        :key="recipe.id"
-        :recipe="recipe"
-        @deletedList="getLists()"
-        @deleteRecipe="deleteRecipe(recipe.id)"
-      />
+  v-for="recipe in recipes"
+  :key="recipe.id"
+  :recipe="recipe"
+  @deletedList="getLists()"
+  @deleteRecipe="deleteRecipe(recipe.id)"
+/>
 
       <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
@@ -130,12 +131,11 @@ function closeSnackBar() {
           <v-card-text>
             <v-text-field
               v-model="newRecipe.name"
-              label="Name"
+              label="Current destination to Desired destination"
               required
             ></v-text-field>
-
-            <v-text-field
-            v-model="newRecipe.location"
+            <!-- <v-text-field
+              v-model="newRecipe.location"
               label="name of location"
               requierd
             ></v-text-field>
@@ -148,7 +148,7 @@ function closeSnackBar() {
               v-model="newRecipe.touristspots"
               label="name of tourist spots"
               requierd
-            ></v-text-field>
+            ></v-text-field> -->
             <v-text-field
               v-model="newRecipe.startdate"
               label=" startdate"
@@ -182,10 +182,11 @@ function closeSnackBar() {
             <v-btn variant="flat" color="secondary" @click="closeAdd()"
               >Close</v-btn
             >
-            <v-btn icon color="error" @click="$emit('deleteRecipe')">
-        <v-icon>mdi-delete</v-icon>
-      </v-btn>
+
+            
+      
             <v-btn variant="flat" color="primary" @click="addRecipe()"
+            :disabled="newRecipe.name === ''"
               >Add Destination</v-btn
             >
           </v-card-actions>
