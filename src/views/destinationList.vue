@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref } from "vue";
-import RecipeCard from "../components/RecipeCardComponent.vue";
-import RecipeServices from "../services/RecipeServices.js";
+import RecipeCard from "../components/destiCardComponent.vue";
+import RecipeServices from "../services/destinationsServices.js";
 
 const recipes = ref([]);
 const isAdd = ref(false);
@@ -125,73 +125,57 @@ function closeSnackBar() {
   @deleteRecipe="deleteRecipe(recipe.id)"
 />
 
-      <v-dialog persistent v-model="isAdd" width="800">
-        <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add Destination </v-card-title>
-          <v-card-text>
-            <v-text-field
-              v-model="newRecipe.name"
-              label="Current destination to Desired destination"
-              required
-            ></v-text-field>
-            <!-- <v-text-field
-              v-model="newRecipe.location"
-              label="name of location"
-              requierd
-            ></v-text-field>
-            <v-text-field
-              v-model="newRecipe.hotels"
-              label="name of hotels"
-              requierd
-            ></v-text-field>
-            <v-text-field
-              v-model="newRecipe.touristspots"
-              label="name of tourist spots"
-              requierd
-            ></v-text-field> -->
-            <v-text-field
-              v-model="newRecipe.startdate"
-              label=" startdate"
-              type="date"
-            ></v-text-field>
-            <v-text-field
-              v-model="newRecipe.enddate"
-              label="enddate"
-              type="date"
-
-            ></v-text-field>
-            <!-- <v-text-field
-              v-model.number="newRecipe.time"
-              label="number of days"
-              type="date"
-            ></v-text-field> -->
-
-            <v-textarea
-              v-model="newRecipe.description"
-              label="Description"
-            ></v-textarea>
-            <v-switch
-              v-model="newRecipe.isPublished"
-              hide-details
-              inset
-              :label="`Publish? ${newRecipe.isPublished ? 'Yes' : 'No'}`"
-            ></v-switch>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn variant="flat" color="secondary" @click="closeAdd()"
-              >Close</v-btn
-            >
-
-            
+<v-dialog persistent v-model="isAdd" width="800">
+  <v-card class="rounded-lg elevation-5">
+    <v-card-title class="headline mb-2">Add Destination</v-card-title>
+    <v-card-text>
+      <v-text-field
+        v-model="newRecipe.location"
+        label="Current destination "
+        required
+      ></v-text-field>
+      <v-text-field
+        v-model="newRecipe.name"
+        label=" Desired destination"
+        required
+      ></v-text-field>
       
-            <v-btn variant="flat" color="primary" @click="addRecipe()"
-            :disabled="newRecipe.name === ''"
-              >Add Destination</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <v-text-field
+        v-model="newRecipe.startdate"
+        :min="today"
+        label="Start Date"
+        type="date"
+      ></v-text-field>
+      
+      <v-text-field
+        v-model="newRecipe.enddate"
+        :min="today"
+        label="End Date"
+        type="date"
+      ></v-text-field>
+      
+      <v-textarea
+        v-model="newRecipe.description"
+        label="Description"
+      ></v-textarea>
+      
+      <v-switch
+        v-model="newRecipe.isPublished"
+        hide-details
+        inset
+        :label="`Publish? ${newRecipe.isPublished ? 'Yes' : 'No'}`"
+      ></v-switch>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn variant="flat" color="secondary" @click="closeAdd()">Close</v-btn>
+      <v-btn variant="flat" color="primary" @click="addRecipe()" :disabled="newRecipe.name === ''">
+        Add Destination
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
       <v-snackbar v-model="snackbar.value" rounded="pill">
         {{ snackbar.text }}
 

@@ -1,14 +1,15 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import IngredientServices from "../services/IngredientServices.js";
-import RecipeIngredientServices from "../services/RecipeIngredientServices";
-import RecipeStepServices from "../services/RecipeStepServices";
-import RecipeServices from "../services/RecipeServices";
+import IngredientServices from "../services/locationServices.js";
+import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
+import RecipeStepServices from "../services/RecipeStepServices.js";
+import RecipeServices from "../services/destinationsServices.js";
+
 
 const route = useRoute();
 
-const recipe = ref({});
+// const recipe = ref({});
 const ingredients = ref([]);
 const selectedIngredient = ref({});
 const recipeIngredients = ref([]);
@@ -29,6 +30,16 @@ const newStep = ref({
   recipeId: undefined,
   recipeIngredient: [],
 });
+const recipe = ref({
+  startdate: null,
+  enddate: null
+});
+const today = ref(null);
+
+onMounted(() => {
+  today.value = new Date().toISOString().split("T")[0];
+  getRecipe();
+});
 const newIngredient = ref({
   id: undefined,
   // quantity: undefined,
@@ -44,25 +55,52 @@ onMounted(async () => {
   await getRecipeSteps();
 });
 
+
+
+
 async function getRecipe() {
-  await RecipeServices.getRecipe(route.params.id)
-    .then((response) => {
-      recipe.value = response.data[0];
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  try {
+    const response = await RecipeServices.getRecipe(route.params.id);
+    const responseData = response.data[0];
+    recipe.value = responseData;
+
+    // Convert the date strings to Date objects
+    recipe.value.startdate = new Date(responseData.startdate);
+    recipe.value.enddate = new Date(responseData.enddate);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function updateRecipe() {
-  await RecipeServices.updateRecipe(recipe.value.id, recipe.value)
-    .then(() => {
-      recipe.value.startdate = recipe.value.startdate; // Manually update start date
-      recipe.value.enddate = recipe.value.enddate; // Manually update end date
+  try {
+    await RecipeServices.updateRecipe(recipe.value.id, recipe.value);
 
+    // Fetch the updated recipe data from the API
+    const updatedRecipe = await RecipeServices.getRecipe(recipe.value.id);
+    const responseData = updatedRecipe.data[0];
+
+    // Convert the date strings to Date objects
+    recipe.value.startdate = new Date(responseData.startdate);
+    recipe.value.enddate = new Date(responseData.enddate);
+
+    snackbar.value.value = true;
+    snackbar.value.color = "green";
+    snackbar.value.text = `${recipe.value.name} updated successfully!`;
+  } catch (error) {
+    console.log(error);
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = error.response.data.message;
+  }
+}
+async function deleteRecipe(recipeId) {
+  await RecipeServices.deleteRecipe(recipeId)
+    .then(() => {
+      // const updatedRecipe = await RecipeServices.getRecipe(recipe.value.id);
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${recipe.value.name} updated successfully!`;
+      snackbar.value.text = "Destination deleted successfully!";
     })
     .catch((error) => {
       console.log(error);
@@ -72,6 +110,7 @@ async function updateRecipe() {
     });
   await getRecipe();
 }
+
 
 
 async function getIngredients() {
@@ -115,21 +154,6 @@ async function addIngredient() {
       snackbar.value.text = error.response.data.message;
     });
   await getRecipeIngredients();
-}
-async function deleteRecipe(recipeId) {
-  await RecipeServices.deleteRecipe(recipeId)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = "Destination deleted successfully!";
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-  await getRecipes();
 }
 
 async function updateIngredient() {
@@ -313,9 +337,9 @@ function closeSnackBar() {
 <template>
   <v-container>
     <v-row align="center">
-      <v-col cols="10"
-        ><v-card-title class="pl-0 text-h4 font-weight-bold"
-          >Edit Destination
+      <v-col cols="10">
+        <v-card-title class="pl-0 text-h4 font-weight-bold">
+          Edit Destination
         </v-card-title>
       </v-col>
     </v-row>
@@ -325,61 +349,28 @@ function closeSnackBar() {
           <v-card-text>
             <v-row>
               <v-col>
-                <v-text-field
-                  v-model="recipe.name"
-                  label="Name"
-                  required
-                ></v-text-field>
-                <!-- <v-text-field
-                  v-model="recipe.location"
-                  label="location"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  v-model="recipe.hotels"
-                  label="hotels"
-                  required
-                ></v-text-field>
-                <v-text-field
-                  v-model="recipe.touristspots"
-                  label="touristspots"
-                  required
-                ></v-text-field> -->
-                <v-text-field
-                  v-model="recipe.startdate"
-                  label="startdate"
-                  type="date"
-                ></v-text-field>
-                <v-text-field
-                  v-model="recipe.enddate"
-                  label="enddate"
-                  type="date"
-                ></v-text-field>
-                <v-switch
-                  v-model="recipe.isPublished"
-                  hide-details
-                  inset
-                  :label="`Publish? ${recipe.isPublished ? 'Yes' : 'No'}`"
-                ></v-switch>
+                <v-text-field v-model="recipe.location" label="current destination" required></v-text-field>
+                <v-text-field v-model="recipe.name" label="Desired destination" required></v-text-field>
+                
+                <v-text-field v-model="recipe.startdate" :min="today" label="Start Date" type="date"></v-text-field>
+                <v-text-field v-model="recipe.enddate" :min="today" label="End Date" type="date"></v-text-field>
+
+                <v-switch v-model="recipe.isPublished" hide-details inset :label="`Publish? ${recipe.isPublished ? 'Yes' : 'No'}`"></v-switch>
               </v-col>
               <v-col>
-                <v-textarea
-                  v-model="recipe.description"
-                  rows="10"
-                  label="Description"
-                ></v-textarea>
+                <v-textarea v-model="recipe.description" rows="10" label="Description"></v-textarea>
               </v-col>
             </v-row>
           </v-card-text>
           <v-card-actions class="pt-0">
-            <v-btn variant="flat" color="primary" @click="updateRecipe()"
-              >Update Destination</v-btn
-            >
-            <v-btn icon color="error" @click="$emit('deleteRecipe')">
-        <v-icon>mdi-delete</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-          </v-card-actions>
+  <v-btn variant="flat" color="primary" @click="updateRecipe()">Update Destination</v-btn>
+  <v-btn icon color="error" @click="deleteRecipe(recipe.Id)">
+    <v-icon>mdi-delete</v-icon>
+  </v-btn>
+  <v-spacer></v-spacer>
+  <v-btn variant="flat" color="primary" class="ml-2" :to="{ name: 'recipes' }">Close</v-btn>
+</v-card-actions>
+
         </v-card>
       </v-col>
     </v-row>
@@ -403,12 +394,12 @@ function closeSnackBar() {
                 :key="recipeIngredient.id"
               >
                 <b
-                  >{{ recipeIngredient.Destinations }}
+                  >Destinations{{ recipeIngredient.Destinations }}
                   {{
                     `${recipeIngredient.ingredient.Touristspots}`
-                  }}</b
-                >
-                Stay at {{ recipeIngredient.ingredient.Hotels }} {{
+                  }}</b>
+                
+                <b> Stay at </b>{{ recipeIngredient.ingredient.Hotels }} City {{
                   recipeIngredient.ingredient.Destinations
                 }} 
                 <template v-slot:append>
@@ -519,6 +510,10 @@ function closeSnackBar() {
           >
         </v-card-actions>
       </v-card>
-    </v-dialog> 
+    </v-dialog>
+
+
+
+   
   </v-container>
 </template>
