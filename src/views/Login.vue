@@ -17,6 +17,7 @@ const user = ref({
   email: "",
   password: "",
   reenterPassword: "",
+  isAdmin: false,
 });
 
 onMounted(async () => {
@@ -30,19 +31,45 @@ function navigateToRecipes() {
 }
 
 async function createAccount() {
-  await UserServices.addUser(user.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = "Account created successfully!";
-      router.push({ name: "login" });
-    })
-    .catch((error) => {
-      console.log(error);
+  // Check if all fields are filled
+  if (
+    user.value.firstName &&
+    user.value.lastName &&
+    user.value.email &&
+    user.value.password &&
+    user.value.reenterPassword
+  ) {
+    // Check if passwords match
+    if (user.value.password !== user.value.reenterPassword) {
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
+      snackbar.value.text = "Passwords do not match.";
+      return;
+    }
+
+    await UserServices.addUser(user.value)
+      .then(() => {
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = "Account created successfully!";
+        router.push({ name: "login" });
+
+        const userData = {
+          ...toRaw(user),
+          isAdmin: user.isAdmin,
+        };
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+  } else {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Please fill in all fields.";
+  }
 }
 
 async function login() {
@@ -74,12 +101,12 @@ function closeCreateAccount() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 // Email validation rule
 const emailRules = [
   v => !!v || "Email is required",
   v => /.+@.+\..+/.test(v) || "Please enter a valid email address",
 ];
-
 </script>
 
 <template>
@@ -107,8 +134,9 @@ const emailRules = [
           <v-btn variant="flat" color="secondary" @click="openCreateAccount()"
             >Create Account</v-btn
           >
-          <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
+          <v-spacer></v-spacer>
 
+          <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
         </v-card-actions>
       </v-card>
 
@@ -162,7 +190,7 @@ const emailRules = [
               required
               type="password"
             ></v-text-field>
-
+            <v-checkbox v-model="user.isAdmin" label="Is an admin"></v-checkbox>
             <!-- Add a validation message if passwords don't match -->
             <v-alert
               v-if="user.password !== user.reenterPassword"
@@ -203,5 +231,3 @@ const emailRules = [
     </div>
   </v-container>
 </template>
-
-<!-- end of code -->
