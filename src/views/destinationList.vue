@@ -23,6 +23,8 @@ const newRecipe = ref({
   
   isPublished: false,
 });
+const publishValid=ref(false);
+const today = new Date().toISOString().split("T")[0];
 
 onMounted(async () => {
   await getRecipes();
@@ -71,21 +73,43 @@ async function getRecipes() {
 }
 
 async function addRecipe() {
-  isAdd.value = false;
-  newRecipe.value.userId = user.value.id;
-  await RecipeServices.addRecipe(newRecipe.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newRecipe.value.name} added successfully!`;
-    })
-    .catch((error) => {
-      console.log(error);
+  publishValid.value=false;
+  console.log(newRecipe.value);
+  if(newRecipe.value.isPublished){
+    if(newRecipe.value.startdate=="" || newRecipe.value.enddate=="" || newRecipe.value.description==""){
+      publishValid.value=false;
+									 
+																		  
+	  
+					   
+      console.log("Invalid");
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-  await getRecipes();
+      snackbar.value.text = "Please input start date end date and description to publish";
+    }else{
+      publishValid.value=true;
+    }
+  }else{
+    publishValid.value=true;
+  }
+  if(publishValid.value){
+    isAdd.value = false;
+    newRecipe.value.userId = user.value.id;
+    await RecipeServices.addRecipe(newRecipe.value)
+      .then(() => {
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = `${newRecipe.value.name} added successfully!`;
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+    await getRecipes();
+  }
+
 }
 
 function openAdd() {

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import IngredientServices from "../services/locationServices.js";
 import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
 import RecipeStepServices from "../services/RecipeStepServices.js";
@@ -8,6 +9,7 @@ import RecipeServices from "../services/destinationsServices.js";
 
 
 const route = useRoute();
+const router = useRouter();
 
 // const recipe = ref({});
 const ingredients = ref([]);
@@ -65,8 +67,13 @@ async function getRecipe() {
     recipe.value = responseData;
 
     // Convert the date strings to Date objects
-    recipe.value.startdate = new Date(responseData.startdate);
-    recipe.value.enddate = new Date(responseData.enddate);
+    // stday = new Date(responseData.startdate);
+    // edday = new Date(responseData.enddate);
+
+    
+    // recipe.value.startdate = moment(String(stday)).format('YYYY-MM-DD');
+    // recipe.value.enddate = moment(String(edday)).format('YYYY-MM-DD');
+
   } catch (error) {
     console.log(error);
   }
@@ -81,8 +88,8 @@ async function updateRecipe() {
     const responseData = updatedRecipe.data[0];
 
     // Convert the date strings to Date objects
-    recipe.value.startdate = new Date(responseData.startdate);
-    recipe.value.enddate = new Date(responseData.enddate);
+    // recipe.value.startdate = new Date(responseData.startdate);
+    // recipe.value.enddate = new Date(responseData.enddate);
 
     snackbar.value.value = true;
     snackbar.value.color = "green";
@@ -98,6 +105,7 @@ async function deleteRecipe(recipeId) {
   await RecipeServices.deleteRecipe(recipeId)
     .then(() => {
       // const updatedRecipe = await RecipeServices.getRecipe(recipe.value.id);
+      router.push({ name: "recipes"});
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Destination deleted successfully!";
@@ -364,11 +372,11 @@ function closeSnackBar() {
           </v-card-text>
           <v-card-actions class="pt-0">
   <v-btn variant="flat" color="primary" @click="updateRecipe()">Update Destination</v-btn>
-  <v-btn icon color="error" @click="deleteRecipe(recipe.Id)">
+  <v-btn icon color="error" @click="deleteRecipe(recipe.id)">
     <v-icon>mdi-delete</v-icon>
   </v-btn>
   <v-spacer></v-spacer>
-  <v-btn variant="flat" color="primary" class="ml-2" :to="{ name: 'recipes' }">Close</v-btn>
+  <v-btn variant="flat" color="primary" class="ml-2" :to="{ name: 'recipes' }">destinations</v-btn>
 </v-card-actions>
 
         </v-card>
