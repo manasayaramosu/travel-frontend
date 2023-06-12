@@ -32,7 +32,7 @@ function logout() {
 <template>
   <div>
     <v-app-bar color="primary" app dark>
-      <router-link :to="{ name: 'recipes' }">
+      <router-link :to="{ name: 'itineraries' }">
         <v-img
           class="mx-2"
           :src="logoURL"
@@ -45,7 +45,9 @@ function logout() {
         {{ title }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn class="mx-2" :to="{ name: 'recipes' }"> destinations </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'itineraries' }"> itineraries </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'destinations' }"> Destinations </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'hotels' }"> Hotels </v-btn>
       <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'ingredients' }">
         Location
       </v-btn>

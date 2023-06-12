@@ -3,14 +3,11 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
 import RecipeStepServices from "../services/RecipeStepServices.js";
-import RecipeHotelServices from "../services/RecipeHotelServices.js";
-
 
 const router = useRouter();
 
 const showDetails = ref(false);
 const recipeIngredients = ref([]);
-const recipeHotels = ref([]);
 const recipeSteps = ref([]);
 const user = ref(null);
 
@@ -22,9 +19,7 @@ const props = defineProps({
 
 onMounted(async () => {
   await getRecipeIngredients();
-  // await getRecipeSteps();
-  await getRecipeHotels();
-
+  await getRecipeSteps();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
@@ -50,18 +45,8 @@ async function getRecipeSteps() {
     });
 }
 
-async function getRecipeHotels() {
-  await RecipeHotelServices.getRecipeHotelsForRecipe(props.recipe.id)
-    .then((response) => {
-      recipeHotels.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
-
 function navigateToEdit() {
-  router.push({ name: "editRecipe", params: { id: props.recipe.id } });
+  router.push({ name: "editdestinations", params: { id: props.recipe.id } });
 }
 </script>
 
@@ -70,7 +55,7 @@ function navigateToEdit() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          <span class="text-h5 font-weight-bold">{{ recipe.location }} to {{ recipe.name }}</span>
+          <span class="text-h5 font-weight-bold">{{ recipe.name }}</span>
         </v-col>
         <v-col class="d-flex justify-end">
           <v-icon v-if="user !== null" size="24" class="text-primary" @click="navigateToEdit">mdi-pencil</v-icon>
@@ -82,33 +67,6 @@ function navigateToEdit() {
       <v-card-text class="pt-0" v-show="showDetails">
         <h3 class="headline mb-2">Description</h3>
         <p class="body-1">{{ recipe.description }}</p>
-
-        <v-chip class="ma-2" color="primary" label>
-          <strong>Start Date:</strong> {{ new Date(recipe.startdate).toLocaleDateString() }}
-        </v-chip>
-        <v-chip class="ma-2" color="primary" label>
-          <strong>End Date:</strong> {{ new Date(recipe.enddate).toLocaleDateString() }}
-        </v-chip>
-
-        <h3 class="headline mb-2">Locations</h3>
-        <v-list>
-          <v-list-item v-for="recipeIngredient in recipeIngredients" :key="recipeIngredient.id">
-            <div>
-              <span class="font-weight-bold">Day {{ recipeIngredient.quantity }}: </span>
-              <span>{{ recipeIngredient.ingredient.Touristspots }} in {{recipeIngredient.ingredient.Destinations }} </span>
-            </div>
-          </v-list-item>
-        </v-list>
-        <h3 class="headline mb-2">Hotels</h3>
-        <v-list>
-          <v-list-item v-for="recipeIngredient in recipeHotels" :key="recipeIngredient.id">
-            <div>
-              <span class="font-weight-bold">Day {{ recipeIngredient.quantity }}: </span>
-              <span>{{ recipeIngredient.hotels.name }}</span>
-            </div>
-          </v-list-item>
-        </v-list>
-
       </v-card-text>
     </v-expand-transition>
   </v-card>

@@ -10,16 +10,37 @@ const router = createRouter({
     },
     {
       path: "/travel",
-      name: "recipes",
-      component: () => import("./views/destinationList.vue"),
+      name: "itineraries",
+      component: () => import("./views/itinerariesList.vue"),
     },
     {
       path: "/travel/:id",
       name: "editRecipe",
       props: true,
-      component: () => import("./views/Editdestination.vue"),
+      component: () => import("./views/Edititineraries.vue"),
     },
-    
+    {
+      path: "/destinations",
+      name: "destinations",
+      component: () => import("./views/destinationList.vue"),
+    },
+    {
+      path: "/destinations/:id",
+      name: "editdestinations",
+      props: true,
+      component: () => import("./views/Edititineraries.vue"),
+    },
+    {
+      path: "/hotels",
+      name: "hotels",
+      component: () => import("./views/hotelList.vue"),
+    },
+    {
+      path: "/hotels/:id",
+      name: "edithotels",
+      props: true,
+      component: () => import("./views/Edititineraries.vue"),
+    },
     {
       path: "/Locations",
       name: "ingredients",
