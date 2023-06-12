@@ -2,12 +2,15 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import IngredientServices from "../services/locationServices.js";
+import DestinationServices from "../services/destinationServices.js";
+
 
 const Destinations = [
 
 ];
 
 const ingredients = ref([]);
+const destinations = ref([]);
 const isAdd = ref(false);
 const isEdit = ref(false);
 const user = ref(null);
@@ -25,6 +28,7 @@ const newIngredient = ref({
 
 onMounted(async () => {
   await getIngredients();
+  await getDestinations();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
@@ -39,11 +43,26 @@ async function getIngredients() {
     snackbar.value.text = error.response.data.message;
   }
 }
+async function getDestinations() {
+  user.value = JSON.parse(localStorage.getItem("user"));
+  await DestinationServices.getDestinations()
+    .then((response) => {
+      destinations.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
 
 async function addIngredient() {
   isAdd.value = false;
   delete newIngredient.value.id;
   try {
+    console.log(newIngredient.value);
+    newIngredient.value.Destinations=newIngredient.value.Destinations.name;
     await IngredientServices.addIngredient(newIngredient.value);
     snackbar.value.value = true;
     snackbar.value.color = "green";
@@ -152,13 +171,32 @@ function closeSnackBar() {
           </v-card-item>
           <v-card-text>
             
-            <v-text-field
+            <!-- <v-text-field
               v-model="newIngredient.Destinations"
               :items="Destinations"
               label="Destinations"
               required
             >
-            </v-text-field>
+            </v-text-field> -->
+            <v-select
+              v-model="newIngredient.Destinations"
+              :items="destinations"
+              :item-title="item => `${item.name}`"
+              item-value="touristspots"
+              label="Destinations"
+              return-object
+              required
+              >
+                <template v-slot:prepend>
+                  {{
+                    `${
+                      selectedIngredient && selectedIngredient.Destinations
+                        ? selectedIngredient.Destinations
+                        : ""
+                    }`
+                  }}
+                </template>
+              </v-select>
             <v-text-field
               v-model="newIngredient.Touristspots"
               label="Tourist spots"

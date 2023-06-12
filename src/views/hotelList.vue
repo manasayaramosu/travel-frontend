@@ -2,9 +2,9 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import DestCard from "../components/destCard.vue";
-import DestinationServices from "../services/destinationServices.js";
+import HotelServices from "../services/hotelServices.js";
 
-const destinations = ref([]);
+const hotels = ref([]);
 const isAdd = ref(false);
 const user = ref(null);
 const snackbar = ref({
@@ -12,7 +12,7 @@ const snackbar = ref({
   color: "",
   text: "",
 });
-const newDestination = ref({
+const newHotel = ref({
   name: "",
   description: ""
 });
@@ -20,11 +20,11 @@ const publishValid=ref(false);
 const today = new Date().toISOString().split("T")[0];
 
 onMounted(async () => {
-  await getDestinations();
+  await getHotels();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
-async function deleteDestination(recipeId) {
-  await DestinationServices.deleteDestination(recipeId)
+async function deleteHotel(recipeId) {
+  await HotelServices.deleteHotel(recipeId)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -36,13 +36,13 @@ async function deleteDestination(recipeId) {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getDestinations();
+  await getHotels();
 }
-async function getDestinations() {
+async function getHotels() {
   user.value = JSON.parse(localStorage.getItem("user"));
-  await DestinationServices.getDestinations()
+  await HotelServices.getHotels()
     .then((response) => {
-      destinations.value = response.data;
+      hotels.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -52,15 +52,15 @@ async function getDestinations() {
     });
 }
 
-async function addDestination() {
+async function addHotel() {
   isAdd.value = false;
-  console.log(newDestination.value);
-  newDestination.value.userId = user.value.id;
-    await DestinationServices.addDestination(newDestination.value)
+  console.log(newHotel.value);
+  newHotel.value.userId = user.value.id;
+    await HotelServices.addHotel(newHotel.value)
       .then(() => {
         snackbar.value.value = true;
         snackbar.value.color = "green";
-        snackbar.value.text = `${newDestination.value.name} added successfully!`;
+        snackbar.value.text = `${newHotel.value.name} added successfully!`;
       })
       .catch((error) => {
         console.log(error);
@@ -68,7 +68,7 @@ async function addDestination() {
         snackbar.value.color = "error";
         snackbar.value.text = error.response.data.message;
       });
-    await getDestinations();
+    await getHotels();
 
 }
 
@@ -91,7 +91,7 @@ function closeSnackBar() {
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Destinations
+            >Hotels
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
@@ -102,24 +102,24 @@ function closeSnackBar() {
       </v-row>
 
       <DestCard
-  v-for="recipe in destinations"
+  v-for="recipe in hotels"
   :key="recipe.id"
   :recipe="recipe"
   @deletedList="getLists()"
-  @deleteDestination="deleteDestination(recipe.id)"
+  @deleteHotel="deleteHotel(recipe.id)"
 />
 
 <v-dialog persistent v-model="isAdd" width="800">
   <v-card class="rounded-lg elevation-5">
-    <v-card-title class="headline mb-2">Add Destination</v-card-title>
+    <v-card-title class="headline mb-2">Add Hotel</v-card-title>
     <v-card-text>
       <v-text-field
-        v-model="newDestination.name"
-        label="Destination"
+        v-model="newHotel.name"
+        label="Hotel"
         required
       ></v-text-field>      
       <v-textarea
-        v-model="newDestination.description"
+        v-model="newHotel.description"
         label="Description"
       ></v-textarea>
       
@@ -127,8 +127,8 @@ function closeSnackBar() {
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn variant="flat" color="secondary" @click="closeAdd()">Close</v-btn>
-      <v-btn variant="flat" color="primary" @click="addDestination()" :disabled="newDestination.name === ''">
-        Add Destination
+      <v-btn variant="flat" color="primary" @click="addHotel()" :disabled="newHotel.name === ''">
+        Add Hotel
       </v-btn>
     </v-card-actions>
   </v-card>

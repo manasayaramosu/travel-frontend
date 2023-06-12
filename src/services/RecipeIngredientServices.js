@@ -5,11 +5,11 @@ export default {
     return apiClient.get("recipeIngredients");
   },
   getRecipeIngredientsForRecipe(recipeId) {
-    return apiClient.get("recipes/" + recipeId + "/recipeIngredients");
+    return apiClient.get("itineraries/" + recipeId + "/recipeIngredients");
   },
   getRecipeIngredientsForRecipeStep(recipeId, recipeStepId) {
     return apiClient.get(
-      "recipes/" +
+      "itineraries/" +
         recipeId +
         "/recipeSteps/" +
         recipeStepId +
@@ -18,7 +18,7 @@ export default {
   },
   getRecipeIngredient(recipeIngredient) {
     return apiClient.get(
-      "recipes/" +
+      "itineraries/" +
         recipeIngredient.recipeId +
         "/recipeIngredients/" +
         recipeIngredient.id
@@ -26,13 +26,13 @@ export default {
   },
   addRecipeIngredient(recipeIngredient) {
     return apiClient.post(
-      "recipes/" + recipeIngredient.recipeId + "/recipeIngredients",
+      "itineraries/" + recipeIngredient.recipeId + "/recipeIngredients",
       recipeIngredient
     );
   },
   updateRecipeIngredient(recipeIngredient) {
     return apiClient.put(
-      "recipes/" +
+      "itineraries/" +
         recipeIngredient.recipeId +
         "/recipeIngredients/" +
         recipeIngredient.id,
@@ -41,7 +41,7 @@ export default {
   },
   deleteRecipeIngredient(recipeIngredient) {
     return apiClient.delete(
-      "recipes/" +
+      "itineraries/" +
         recipeIngredient.recipeId +
         "/recipeIngredients/" +
         recipeIngredient.id
