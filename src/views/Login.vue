@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import { ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices.js";
+import TravellerView from "../views/traveller_view.vue";
 
 const router = useRouter();
 const isCreateAccount = ref(false);
@@ -25,6 +26,34 @@ onMounted(async () => {
     router.push({ name: "itineraries" });
   }
 });
+
+async function loginAsTraveler() {
+  // Perform the same username and password validations as the regular login button
+  if (
+    user.value.email &&
+    user.value.password
+  ) {
+    console.log(user.value);
+    await UserServices.loginUser(user)
+      .then((data) => {
+        window.localStorage.setItem("user", JSON.stringify(data.data));
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = "Login successful!";
+        router.push({ name: "traveller_view" }); // Redirect to the traveler view
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+  } else {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Please fill in all fields.";
+  }
+}
 
 function navigateToRecipes() {
   router.push({ name: "itineraries" });
@@ -137,6 +166,8 @@ const emailRules = [
           <v-spacer></v-spacer>
 
           <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
+          <v-btn variant="flat" color="primary" @click="loginAsTraveler">Login as Traveler</v-btn>
+
         </v-card-actions>
       </v-card>
 
@@ -150,6 +181,7 @@ const emailRules = [
           >
             View Published Destinations
           </v-btn>
+          <TravellerView v-if="router.currentRoute.name === 'traveller_view'" />
         </v-card-title>
       </v-card>
 

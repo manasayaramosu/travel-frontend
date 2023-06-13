@@ -1,0 +1,201 @@
+<script setup>
+import { onMounted } from "vue";
+import { ref } from "vue";
+import RecipeCard from "../components/travellerCardComponent.vue";
+import RecipeServices from "../services/itinerariesServices.js";
+
+const itineraries = ref([]);
+const isAdd = ref(false);
+const user = ref(null);
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
+const newRecipe = ref({
+  name: "",
+  description: "",
+  location:"",
+  startdate:"",
+  enddate: "", 
+  hotels: "",
+  touristspots: "",
+  
+  isPublished: false,
+});
+const publishValid=ref(false);
+const today = new Date().toISOString().split("T")[0];
+
+onMounted(async () => {
+  await getRecipes();
+  user.value = JSON.parse(localStorage.getItem("user"));
+});
+async function deleteRecipe(recipeId) {
+  await RecipeServices.deleteRecipe(recipeId)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = " deleted successfully!";
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getRecipes();
+}
+async function getRecipes() {
+  await RecipeServices.getRecipes()
+    .then((response) => {
+      itineraries.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
+
+
+async function addRecipe() {
+  publishValid.value=false;
+  console.log(newRecipe.value);
+  if(newRecipe.value.isPublished){
+    if(newRecipe.value.startdate=="" || newRecipe.value.enddate=="" || newRecipe.value.description==""){
+      publishValid.value=false;
+									 
+																		  
+	  
+					   
+      console.log("Invalid");
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = "Please input start date end date and description to publish";
+    }else{
+      publishValid.value=true;
+    }
+  }else{
+    publishValid.value=true;
+  }
+  if(publishValid.value){
+    isAdd.value = false;
+    newRecipe.value.userId = user.value.id;
+    await RecipeServices.addRecipe(newRecipe.value)
+      .then(() => {
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = `${newRecipe.value.name} added successfully!`;
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+    await getRecipes();
+  }
+
+}
+
+function openAdd() {
+  isAdd.value = true;
+}
+
+function closeAdd() {
+  isAdd.value = false;
+}
+
+function closeSnackBar() {
+  snackbar.value.value = false;
+}
+</script>
+
+<template>
+  <v-container>
+    <div id="body">
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Itineraries
+          </v-card-title>
+        </v-col>
+       
+      </v-row>
+
+      <RecipeCard
+  v-for="recipe in itineraries"
+  :key="recipe.id"
+  :recipe="recipe"
+  @deletedList="getLists()"
+  @deleteRecipe="deleteRecipe(recipe.id)"
+/>
+
+<v-dialog persistent v-model="isAdd" width="800">
+  <v-card class="rounded-lg elevation-5">
+    <v-card-title class="headline mb-2">Add Itineraries</v-card-title>
+    <v-card-text>
+      <v-text-field
+        v-model="newRecipe.location"
+        label="Current destination "
+        required
+      ></v-text-field>
+      <v-text-field
+        v-model="newRecipe.name"
+        label=" Desired destination"
+        required
+      ></v-text-field>
+      
+      <v-text-field
+        v-model="newRecipe.startdate"
+        :min="today"
+        label="Start Date"
+        type="date"
+      ></v-text-field>
+      
+      <v-text-field
+        v-model="newRecipe.enddate"
+        :min="today"
+        label="End Date"
+        type="date"
+      ></v-text-field>
+      
+      <v-textarea
+        v-model="newRecipe.description"
+        label="Description"
+      ></v-textarea>
+      
+      <v-switch
+        v-model="newRecipe.isPublished"
+        hide-details
+        inset
+        :label="`Publish? ${newRecipe.isPublished ? 'Yes' : 'No'}`"
+      ></v-switch>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn variant="flat" color="secondary" @click="closeAdd()">Close</v-btn>
+      <v-btn variant="flat" color="primary" @click="addRecipe()" :disabled="newRecipe.name === ''">
+        Add Destination
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+      <v-snackbar v-model="snackbar.value" rounded="pill">
+        {{ snackbar.text }}
+
+        <template v-slot:actions>
+          <v-btn
+            :color="snackbar.color"
+            variant="text"
+            @click="closeSnackBar()"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
+  </v-container>
+</template>
