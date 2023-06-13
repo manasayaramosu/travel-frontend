@@ -47,6 +47,18 @@ const router = createRouter({
       props: true,
       component: () => import("./views/locationtList.vue"),
     },
+    {
+      path: "/traveller_view",
+      name: "traveller_view",
+      props: true,
+      component: () => import("./views/traveller_view.vue"),
+    },
+    {
+      path: "/mydestination",
+      name: "mydestination",
+      props: true,
+      component: () => import("./views/MyDestinations.vue"),
+    },
   ],
 });
 
